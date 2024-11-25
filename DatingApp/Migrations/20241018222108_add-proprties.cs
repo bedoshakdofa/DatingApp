@@ -10,14 +10,9 @@ namespace DatingApp.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "User_email",
-                table: "users",
-                type: "text",
-                nullable: true);
 
             migrationBuilder.AddColumn<string>(
-                name: "userName",
+                name: "UserName",
                 table: "users",
                 type: "text",
                 nullable: true);

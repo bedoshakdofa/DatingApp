@@ -1,4 +1,4 @@
-﻿using DatingApp.Data;
+﻿using DatingApp.Data.Models;
 
 namespace DatingApp.Interfaces
 {

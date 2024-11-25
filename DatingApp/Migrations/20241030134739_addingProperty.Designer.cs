@@ -3,6 +3,7 @@ using System;
 using DatingApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DatingApp.Migrations
 {
     [DbContext(typeof(DbContextApplication))]
-    partial class DbContextApplicationModelSnapshot : ModelSnapshot
+    [Migration("20241030134739_addingProperty")]
+    partial class addingProperty
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace DatingApp.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("DatingApp.Data.Models.Photo", b =>
+            modelBuilder.Entity("DatingApp.Data.Photo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -30,14 +33,14 @@ namespace DatingApp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Url")
-                        .HasColumnType("text");
-
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.Property<bool>("isMain")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("photoUrl")
+                        .HasColumnType("text");
 
                     b.Property<string>("publicId")
                         .HasColumnType("text");
@@ -49,13 +52,16 @@ namespace DatingApp.Migrations
                     b.ToTable("Photos");
                 });
 
-            modelBuilder.Entity("DatingApp.Data.Models.User", b =>
+            modelBuilder.Entity("DatingApp.Data.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateOnly>("BOD")
+                        .HasColumnType("date");
 
                     b.Property<string>("City")
                         .HasColumnType("text");
@@ -64,10 +70,7 @@ namespace DatingApp.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateOnly>("DateOfBirth")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Gender")
                         .HasColumnType("text");
@@ -82,44 +85,32 @@ namespace DatingApp.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("LastActive")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("LookingFor")
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserName")
+                    b.Property<string>("User_email")
                         .HasColumnType("text");
 
                     b.Property<byte[]>("hashedPass")
                         .HasColumnType("bytea");
 
+                    b.Property<string>("lookingFor")
+                        .HasColumnType("text");
+
                     b.Property<byte[]>("saltPassword")
                         .HasColumnType("bytea");
+
+                    b.Property<string>("userName")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.ToTable("users");
                 });
 
-            modelBuilder.Entity("DatingApp.Data.Models.UserLikes", b =>
+            modelBuilder.Entity("DatingApp.Data.Photo", b =>
                 {
-                    b.Property<int>("SourceUserId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TragetUserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("SourceUserId", "TragetUserId");
-
-                    b.HasIndex("TragetUserId");
-
-                    b.ToTable("likes");
-                });
-
-            modelBuilder.Entity("DatingApp.Data.Models.Photo", b =>
-                {
-                    b.HasOne("DatingApp.Data.Models.User", "user")
-                        .WithMany("Photos")
+                    b.HasOne("DatingApp.Data.User", "user")
+                        .WithMany("photos")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -127,32 +118,9 @@ namespace DatingApp.Migrations
                     b.Navigation("user");
                 });
 
-            modelBuilder.Entity("DatingApp.Data.Models.UserLikes", b =>
+            modelBuilder.Entity("DatingApp.Data.User", b =>
                 {
-                    b.HasOne("DatingApp.Data.Models.User", "SourceUser")
-                        .WithMany("LikedUsers")
-                        .HasForeignKey("SourceUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DatingApp.Data.Models.User", "TragerUser")
-                        .WithMany("LikedByUsers")
-                        .HasForeignKey("TragetUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SourceUser");
-
-                    b.Navigation("TragerUser");
-                });
-
-            modelBuilder.Entity("DatingApp.Data.Models.User", b =>
-                {
-                    b.Navigation("LikedByUsers");
-
-                    b.Navigation("LikedUsers");
-
-                    b.Navigation("Photos");
+                    b.Navigation("photos");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,4 @@
-﻿using DatingApp.Data;
+﻿using DatingApp.Data.Models;
 using DatingApp.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -18,7 +18,8 @@ namespace DatingApp.Services
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.NameId,user.userName)
+                new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
+                new Claim(ClaimTypes.Name,user.UserName)
             };
 
             var cred=new SigningCredentials(_key,SecurityAlgorithms.HmacSha256Signature);
@@ -29,9 +30,7 @@ namespace DatingApp.Services
                 Expires=DateTime.Now.AddDays(7),
                 SigningCredentials=cred,
             };
-
             var TokenHandler = new JwtSecurityTokenHandler();
-
             var token = TokenHandler.CreateToken(TokenDescriptor);
             return TokenHandler.WriteToken(token);
 

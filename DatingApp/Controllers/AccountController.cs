@@ -1,4 +1,5 @@
 ﻿using DatingApp.Data;
+using DatingApp.Data.Models;
 using DatingApp.DTOs;
 using DatingApp.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +10,9 @@ using System.Text;
 
 namespace DatingApp.Controllers
 {
-    public class AccountController:baseApiController
+    [ApiController]
+    [Route("/api/[Controller]")]
+    public class AccountController:ControllerBase
     {
         private readonly DbContextApplication _context;
 
@@ -24,22 +27,22 @@ namespace DatingApp.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>>sginUp(RegisterDto registerDto)
         {
-            if (await checkUserExist(registerDto.email)) return BadRequest("user is found");
+            if (await checkUserExist(registerDto.Username)) return BadRequest("user is found");
 
             using var hmac = new HMACSHA512();
             var user = new User
             {
-                userName=registerDto.Username.ToLower(),
-                User_email=registerDto.email.ToLower(),
+                UserName=registerDto.Username.ToLower(),
                 hashedPass=hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
                 saltPassword=hmac.Key
 
             };
+         
             _context.users.Add(user);
             await _context.SaveChangesAsync();
             return new UserDto
             {
-                UserName = user.userName,
+                UserName = user.UserName,
                 Token =_JwtToken.CreateToken(user)
             };
         }
@@ -48,7 +51,7 @@ namespace DatingApp.Controllers
 
         public async Task<ActionResult<UserDto>> login(LoginDTO loginDto)
         {
-            User user1=await _context.users.SingleOrDefaultAsync(x=>x.User_email==loginDto.email);
+            User user1=await _context.users.SingleOrDefaultAsync(x=>x.UserName==loginDto.userName);
             if (user1 == null) return Unauthorized("invaild email");
 
             using var hmac=new HMACSHA512(user1.saltPassword);
@@ -62,29 +65,15 @@ namespace DatingApp.Controllers
 
             return new UserDto
             {
-                UserName = user1.userName,
+                UserName = user1.UserName,
                 Token = _JwtToken.CreateToken(user1)
             };
         }
 
-        [Authorize]
-        [HttpGet("{id}")]
 
-        public async Task<ActionResult<User>> getUserById(int id)
+        private async Task<bool> checkUserExist(string userName)
         {
-            return Ok(await _context.users.FindAsync(id));
-        }
-
-        [Authorize]
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>>GetAllUser()
-        {
-            return Ok(await _context.users.ToListAsync());
-        }
-
-        private async Task<bool> checkUserExist(string email)
-        {
-            return await _context.users.AnyAsync(x => x.User_email == email.ToLower());
+            return await _context.users.AnyAsync(x => x.UserName == userName.ToLower());
         }
     }
 }

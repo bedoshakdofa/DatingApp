@@ -5,8 +5,7 @@ namespace DatingApp.DTOs
     public class LoginDTO
     {
         [Required]
-        [EmailAddress]
-        public string email { get; set; }
+        public string userName { get; set; }
 
         [Required]
         public string password { get; set; }
